@@ -20,7 +20,6 @@ sed -i "115i\\    Default: $Workers" amazon-eks-nodegroup.yaml
 
 sed -i '18d' amazon-eks-nodegroup.yaml
 sed -i "18i\\    Default: $Size" amazon-eks-nodegroup.yaml
-
 #echo "creating iam role"
 echo "creating vpc and subnet"
 aws cloudformation create-stack --stack-name $Cluster_Name --template-body file:///home/ubuntu/amazon-eks-vpc-sample.yaml --parameters ParameterKey=VpcBlock,ParameterValue=192.168.0.0/16 ParameterKey=Subnet01Block,ParameterValue=192.168.64.0/18 ParameterKey=Subnet02Block,ParameterValue=192.168.128.0/18 ParameterKey=Subnet03Block,ParameterValue=192.168.192.0/18
@@ -55,5 +54,23 @@ sed -i "8i\\    - rolearn: $iam_role" aws-auth-cm.yaml
 #sed -i 's/- rolearn:.*/- rolearn: '$test'/g' aws-auth-cm.yaml
 kubectl delete -f aws-auth-cm.yaml
 kubectl create -f aws-auth-cm.yaml
-sleep 10
+sleep 30
 kubectl get nodes
+kubectl version
+echo "pushing to github"
+cd /home/ubuntu
+rm -rf eks-app-platform-config
+git clone https://github.com/nagarajui7/eks-app-platform-config.git
+cd eks-app-platform-config
+mkdir $Cluster_Name-$Region
+kubectl get nodes > /home/ubuntu/eks-app-platform-config/$Cluster_Name-$Region/worker_nodes
+aws eks describe-cluster --name $Cluster_Name > /home/ubuntu/eks-app-platform-config/$Cluster_Name-$Region/cluster_info.json
+cd /home/ubuntu
+#cp worker_nodes /home/ubuntu/eks-app-platform-config/$Cluster_Name-$Region
+#cp cluster-info.json /home/ubuntu/eks-app-platform-config/$Cluster_Name-$Region
+cd eks-app-platform-config
+git add .
+git status
+git commit -m "files"
+#git push origin master
+git push https://nagaraju.batchu1%40gmail.com:N%40Ga%4012345@github.com/nagarajui7/eks-app-platform-config.git
