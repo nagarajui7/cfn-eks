@@ -73,7 +73,7 @@ echo $iam_role
 sed -i '8d'  aws-auth-cm.yaml
 sed -i "8i\\    - rolearn: $iam_role" aws-auth-cm.yaml
 #sed -i 's/- rolearn:.*/- rolearn: '$test'/g' aws-auth-cm.yaml
-#kubectl delete -f aws-auth-cm.yaml
+kubectl delete -f aws-auth-cm.yaml
 kubectl create -f aws-auth-cm.yaml
 sleep 30
 kubectl get nodes
