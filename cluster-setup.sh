@@ -68,7 +68,7 @@ echo "updating kube-config file for the cluster"
 aws eks --region $reg update-kubeconfig --name $Cluster_Name
 kubectl get svc
 echo "create nodes for the cluster"
-aws cloudformation create-stack --stack-name $Cluster_Name-nodes  --template-body file:///home/ubuntu/cfn-eksamazon-eks-nodegroup.yaml --parameters ParameterKey=ClusterName,ParameterValue=$Cluster_Name ParameterKey=ClusterControlPlaneSecurityGroup,ParameterValue=$securitygrpvalue ParameterKey=NodeGroupName,ParameterValue=$Cluster_Name-nodes ParameterKey=NodeAutoScalingGroupMinSize,ParameterValue=1 ParameterKey=NodeAutoScalingGroupDesiredCapacity,ParameterValue=$Workers ParameterKey=NodeAutoScalingGroupMaxSize,ParameterValue=4 ParameterKey=NodeInstanceType,ParameterValue=$Size ParameterKey=NodeImageId,ParameterValue=$image ParameterKey=KeyName,ParameterValue=cap-$reg ParameterKey=VpcId,ParameterValue=$vpcvalue ParameterKey=Subnets,ParameterValue=\"$subnet01value,$subnet02value,$subnet03value\" --capabilities CAPABILITY_IAM
+aws cloudformation create-stack --stack-name $Cluster_Name-nodes  --template-body file:///home/ubuntu/cfn-eks/amazon-eks-nodegroup.yaml --parameters ParameterKey=ClusterName,ParameterValue=$Cluster_Name ParameterKey=ClusterControlPlaneSecurityGroup,ParameterValue=$securitygrpvalue ParameterKey=NodeGroupName,ParameterValue=$Cluster_Name-nodes ParameterKey=NodeAutoScalingGroupMinSize,ParameterValue=1 ParameterKey=NodeAutoScalingGroupDesiredCapacity,ParameterValue=$Workers ParameterKey=NodeAutoScalingGroupMaxSize,ParameterValue=4 ParameterKey=NodeInstanceType,ParameterValue=$Size ParameterKey=NodeImageId,ParameterValue=$image ParameterKey=KeyName,ParameterValue=cap-$reg ParameterKey=VpcId,ParameterValue=$vpcvalue ParameterKey=Subnets,ParameterValue=\"$subnet01value,$subnet02value,$subnet03value\" --capabilities CAPABILITY_IAM
 aws cloudformation describe-stacks --stack-name $Cluster_Name-nodes
 sleep 400
 echo "adding workers to cluster"
@@ -77,8 +77,8 @@ echo $iam_role
 sed -i '8d'  aws-auth-cm.yaml
 sed -i "8i\\    - rolearn: $iam_role" aws-auth-cm.yaml
 #sed -i 's/- rolearn:.*/- rolearn: '$test'/g' aws-auth-cm.yaml
-kubectl delete -f aws-auth-cm.yaml
-kubectl create -f aws-auth-cm.yaml
+kubectl delete -f /home/ubuntu/cfn-eks/aws-auth-cm.yaml
+kubectl create -f /home/ubuntu/cfn-eks/aws-auth-cm.yaml
 sleep 30
 kubectl get nodes
 kubectl version
