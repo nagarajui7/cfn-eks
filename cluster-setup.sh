@@ -77,14 +77,14 @@ echo $iam_role
 sed -i '8d'  aws-auth-cm.yaml
 sed -i "8i\\    - rolearn: $iam_role" aws-auth-cm.yaml
 #sed -i 's/- rolearn:.*/- rolearn: '$test'/g' aws-auth-cm.yaml
-kubectl delete -f /home/ubuntu/cfn-eks/aws-auth-cm.yaml
+#kubectl delete -f /home/ubuntu/cfn-eks/aws-auth-cm.yaml
 kubectl create -f /home/ubuntu/cfn-eks/aws-auth-cm.yaml
 sleep 30
 kubectl get nodes
 kubectl version
 echo "creating the dashboard"
-kubectl delete -f /home/ubuntu/cfn-eks/kubernetes-dashboard.yaml
-kubectl delete -f /home/ubuntu/cfn-eks/eks-admin-service-account.yaml
+#kubectl delete -f /home/ubuntu/cfn-eks/kubernetes-dashboard.yaml
+#kubectl delete -f /home/ubuntu/cfn-eks/eks-admin-service-account.yaml
 kubectl create -f /home/ubuntu/cfn-eks/kubernetes-dashboard.yaml
 kubectl create -f /home/ubuntu/cfn-eks/eks-admin-service-account.yaml
 echo "pushing to github"
