@@ -78,6 +78,7 @@ kubectl create -f aws-auth-cm.yaml
 sleep 30
 kubectl get nodes
 kubectl version
+echo "creating the dashboard"
 kubectl create -f /home/ubuntu/kubernetes-dashboard.yaml
 kubectl create -f /home/ubuntu/eks-admin-service-account.yaml
 echo "pushing to github"
