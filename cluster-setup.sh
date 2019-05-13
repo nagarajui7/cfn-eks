@@ -13,13 +13,33 @@ echo "size of instance selected $Size"
 aws configure set region $reg
 bash image.sh $reg > test
 image=`cat test`
-echo $image
+echo "image selected $image"
+#if [ $reg == "us-east-1" ];
+#then
+#        image=ami-0abcb9f9190e867ab
+#        echo $image
+#elif [ $reg == "us-east-2" ];
+#then
+#        image=ami-04ea7cb66af82ae4a
+#        echo $image
+#elif [ $reg == "eu-central-1" ];
+#then
+#        image=ami-0d741ed58ca5b342e
+#        echo $image
+#elif [ $reg == "eu-west-1" ];
+#then
+#        image=ami-08716b70cac884aaa
+#        echo $image
+#else
+#        echo "wrong zone"
+#fi
 echo "inserting values in cfn template"
 sed -i '115d' amazon-eks-nodegroup.yaml
 sed -i "115i\\    Default: $Workers" amazon-eks-nodegroup.yaml
 
 sed -i '18d' amazon-eks-nodegroup.yaml
 sed -i "18i\\    Default: $Size" amazon-eks-nodegroup.yaml
+
 #echo "creating iam role"
 echo "creating vpc and subnet"
 aws cloudformation create-stack --stack-name $Cluster_Name --template-body file:///home/ubuntu/amazon-eks-vpc-sample.yaml --parameters ParameterKey=VpcBlock,ParameterValue=192.168.0.0/16 ParameterKey=Subnet01Block,ParameterValue=192.168.64.0/18 ParameterKey=Subnet02Block,ParameterValue=192.168.128.0/18 ParameterKey=Subnet03Block,ParameterValue=192.168.192.0/18
@@ -37,9 +57,10 @@ echo $subnet03value
 echo $securitygrpvalue
 echo "create eks cluster"
 aws eks --region $reg create-cluster --name $Cluster_Name --role-arn arn:aws:iam::828164643967:role/eksCluster-cap --resources-vpc-config subnetIds=$subnet01value,$subnet02value,$subnet03value,securityGroupIds=$securitygrpvalue
-sleep 650
+sleep 700
 echo "cluster status"
 aws eks --region $reg describe-cluster --name $Cluster_Name --query cluster.status
+echo "updating kube-config file for the cluster"
 aws eks --region $reg update-kubeconfig --name $Cluster_Name
 kubectl get svc
 echo "create nodes for the cluster"
@@ -52,19 +73,22 @@ echo $iam_role
 sed -i '8d'  aws-auth-cm.yaml
 sed -i "8i\\    - rolearn: $iam_role" aws-auth-cm.yaml
 #sed -i 's/- rolearn:.*/- rolearn: '$test'/g' aws-auth-cm.yaml
-kubectl delete -f aws-auth-cm.yaml
+#kubectl delete -f aws-auth-cm.yaml
 kubectl create -f aws-auth-cm.yaml
 sleep 30
 kubectl get nodes
 kubectl version
+kubectl create -f /home/ubuntu/kubernetes-dashboard.yaml
+kubectl create -f /home/ubuntu/eks-admin-service-account.yaml
 echo "pushing to github"
 cd /home/ubuntu
 rm -rf eks-app-platform-config
 git clone https://github.com/nagarajui7/eks-app-platform-config.git
 cd eks-app-platform-config
-mkdir $Cluster_Name-$Region
-kubectl get nodes > /home/ubuntu/eks-app-platform-config/$Cluster_Name-$Region/worker_nodes
-aws eks describe-cluster --name $Cluster_Name > /home/ubuntu/eks-app-platform-config/$Cluster_Name-$Region/cluster_info.json
+mkdir $Cluster_Name-$reg
+kubectl get nodes > /home/ubuntu/eks-app-platform-config/$Cluster_Name-$reg/worker_nodes
+aws eks describe-cluster --name $Cluster_Name > /home/ubuntu/eks-app-platform-config/$Cluster_Name-$reg/cluster_info.json
+kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep eks-admin | awk '{print $1}') > /home/ubuntu/eks-app-platform-config/$Cluster_Name-$reg/token
 cd /home/ubuntu
 #cp worker_nodes /home/ubuntu/eks-app-platform-config/$Cluster_Name-$Region
 #cp cluster-info.json /home/ubuntu/eks-app-platform-config/$Cluster_Name-$Region
