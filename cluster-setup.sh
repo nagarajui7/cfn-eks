@@ -42,7 +42,7 @@ sed -i "18i\\    Default: $Size" amazon-eks-nodegroup.yaml
 
 #echo "creating iam role"
 echo "creating vpc and subnet"
-aws cloudformation create-stack --stack-name $Cluster_Name --template-body file:///home/ubuntu/amazon-eks-vpc-sample.yaml --parameters ParameterKey=VpcBlock,ParameterValue=192.168.0.0/16 ParameterKey=Subnet01Block,ParameterValue=192.168.64.0/18 ParameterKey=Subnet02Block,ParameterValue=192.168.128.0/18 ParameterKey=Subnet03Block,ParameterValue=192.168.192.0/18
+aws cloudformation create-stack --stack-name $Cluster_Name --template-body file:///home/ubuntu/cfn-eks/amazon-eks-vpc-sample.yaml --parameters ParameterKey=VpcBlock,ParameterValue=192.168.0.0/16 ParameterKey=Subnet01Block,ParameterValue=192.168.64.0/18 ParameterKey=Subnet02Block,ParameterValue=192.168.128.0/18 ParameterKey=Subnet03Block,ParameterValue=192.168.192.0/18
 sleep 100
 echo "displaying the subnets and vpc created"
 vpcvalue=`aws ec2 describe-vpcs --filters Name=tag:Name,Values=$Cluster_Name-VPC | grep "VpcId" | cut -d ":" -f2 | sed 's/"//g' | sed 's/,//g' | sed 's/ //g'`
@@ -64,7 +64,7 @@ echo "updating kube-config file for the cluster"
 aws eks --region $reg update-kubeconfig --name $Cluster_Name
 kubectl get svc
 echo "create nodes for the cluster"
-aws cloudformation create-stack --stack-name $Cluster_Name-nodes  --template-body file:///home/ubuntu/amazon-eks-nodegroup.yaml --parameters ParameterKey=ClusterName,ParameterValue=$Cluster_Name ParameterKey=ClusterControlPlaneSecurityGroup,ParameterValue=$securitygrpvalue ParameterKey=NodeGroupName,ParameterValue=$Cluster_Name-nodes ParameterKey=NodeAutoScalingGroupMinSize,ParameterValue=1 ParameterKey=NodeAutoScalingGroupDesiredCapacity,ParameterValue=$Workers ParameterKey=NodeAutoScalingGroupMaxSize,ParameterValue=4 ParameterKey=NodeInstanceType,ParameterValue=$Size ParameterKey=NodeImageId,ParameterValue=$image ParameterKey=KeyName,ParameterValue=cap-$reg ParameterKey=VpcId,ParameterValue=$vpcvalue ParameterKey=Subnets,ParameterValue=\"$subnet01value,$subnet02value,$subnet03value\" --capabilities CAPABILITY_IAM
+aws cloudformation create-stack --stack-name $Cluster_Name-nodes  --template-body file:///home/ubuntu/cfn-eksamazon-eks-nodegroup.yaml --parameters ParameterKey=ClusterName,ParameterValue=$Cluster_Name ParameterKey=ClusterControlPlaneSecurityGroup,ParameterValue=$securitygrpvalue ParameterKey=NodeGroupName,ParameterValue=$Cluster_Name-nodes ParameterKey=NodeAutoScalingGroupMinSize,ParameterValue=1 ParameterKey=NodeAutoScalingGroupDesiredCapacity,ParameterValue=$Workers ParameterKey=NodeAutoScalingGroupMaxSize,ParameterValue=4 ParameterKey=NodeInstanceType,ParameterValue=$Size ParameterKey=NodeImageId,ParameterValue=$image ParameterKey=KeyName,ParameterValue=cap-$reg ParameterKey=VpcId,ParameterValue=$vpcvalue ParameterKey=Subnets,ParameterValue=\"$subnet01value,$subnet02value,$subnet03value\" --capabilities CAPABILITY_IAM
 aws cloudformation describe-stacks --stack-name $Cluster_Name-nodes
 sleep 400
 echo "adding workers to cluster"
@@ -79,10 +79,10 @@ sleep 30
 kubectl get nodes
 kubectl version
 echo "creating the dashboard"
-kubectl delete -f /home/ubuntu/kubernetes-dashboard.yaml
-kubectl delete -f /home/ubuntu/eks-admin-service-account.yaml
-kubectl create -f /home/ubuntu/kubernetes-dashboard.yaml
-kubectl create -f /home/ubuntu/eks-admin-service-account.yaml
+kubectl delete -f /home/ubuntu/cfn-eks/kubernetes-dashboard.yaml
+kubectl delete -f /home/ubuntu/cfn-eks/eks-admin-service-account.yaml
+kubectl create -f /home/ubuntu/cfn-eks/kubernetes-dashboard.yaml
+kubectl create -f /home/ubuntu/cfn-eks/eks-admin-service-account.yaml
 echo "pushing to github"
 cd /home/ubuntu
 rm -rf eks-app-platform-config
@@ -92,10 +92,10 @@ mkdir $Cluster_Name-$reg
 kubectl get nodes > /home/ubuntu/eks-app-platform-config/$Cluster_Name-$reg/worker_nodes
 aws eks describe-cluster --name $Cluster_Name > /home/ubuntu/eks-app-platform-config/$Cluster_Name-$reg/cluster_info.json
 kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep eks-admin | awk '{print $1}') > /home/ubuntu/eks-app-platform-config/$Cluster_Name-$reg/token
-cd /home/ubuntu
+#cd /home/ubuntu
 #cp worker_nodes /home/ubuntu/eks-app-platform-config/$Cluster_Name-$Region
 #cp cluster-info.json /home/ubuntu/eks-app-platform-config/$Cluster_Name-$Region
-cd eks-app-platform-config
+#cd eks-app-platform-config
 git init
 git add .
 git status
