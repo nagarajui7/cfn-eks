@@ -101,6 +101,7 @@ kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | gre
 #cp cluster-info.json /home/ubuntu/eks-app-platform-config/$Cluster_Name-$Region
 #cd eks-app-platform-config
 git init
+git pull
 git add .
 git status
 git commit -m "files"
