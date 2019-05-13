@@ -46,9 +46,13 @@ aws cloudformation create-stack --stack-name $Cluster_Name --template-body file:
 sleep 100
 echo "displaying the subnets and vpc created"
 vpcvalue=`aws ec2 describe-vpcs --filters Name=tag:Name,Values=$Cluster_Name-VPC | grep "VpcId" | cut -d ":" -f2 | sed 's/"//g' | sed 's/,//g' | sed 's/ //g'`
-subnet01value=`aws ec2 describe-subnets --filters Name=tag:Name,Values=$Cluster_Name-Subnet01 | grep "SubnetId" | cut -d ":" -f2 | sed 's/"//g' | sed 's/,//g' | sed 's/ //g'`
-subnet02value=`aws ec2 describe-subnets --filters Name=tag:Name,Values=$Cluster_Name-Subnet02 | grep "SubnetId" | cut -d ":" -f2 | sed 's/"//g' | sed 's/,//g' | sed 's/ //g'`
-subnet03value=`aws ec2 describe-subnets --filters Name=tag:Name,Values=$Cluster_Name-Subnet03 | grep "SubnetId" | cut -d ":" -f2 | sed 's/"//g' | sed 's/,//g' | sed 's/ //g'`
+aws ec2 describe-subnets --filters Name=tag:aws:cloudformation:stack-name,Values=nagaraju-Cap | grep SubnetId > /home/ubuntu/cfn-eks/subnets
+subnet01value=`cat /home/ubuntu/cfn-eks/subnets | sed -n '1p' | cut -d ":" -f2 | sed 's/"//g' | sed 's/,//g' | sed 's/ //g'`
+subnet02value=`cat /home/ubuntu/cfn-eks/subnets | sed -n '2p' | cut -d ":" -f2 | sed 's/"//g' | sed 's/,//g' | sed 's/ //g'`
+subnet03value=`cat /home/ubuntu/cfn-eks/subnets | sed -n '3p' | cut -d ":" -f2 | sed 's/"//g' | sed 's/,//g' | sed 's/ //g'`
+#subnet01value=`aws ec2 describe-subnets --filters Name=tag:Name,Values=$Cluster_Name-Subnet01 | grep "SubnetId" | cut -d ":" -f2 | sed 's/"//g' | sed 's/,//g' | sed 's/ //g'`
+#subnet02value=`aws ec2 describe-subnets --filters Name=tag:Name,Values=$Cluster_Name-Subnet02 | grep "SubnetId" | cut -d ":" -f2 | sed 's/"//g' | sed 's/,//g' | sed 's/ //g'`
+#subnet03value=`aws ec2 describe-subnets --filters Name=tag:Name,Values=$Cluster_Name-Subnet03 | grep "SubnetId" | cut -d ":" -f2 | sed 's/"//g' | sed 's/,//g' | sed 's/ //g'`
 securitygrpvalue=`aws ec2 describe-security-groups --filters Name=tag:aws:cloudformation:stack-name,Values=$Cluster_Name | grep "GroupId" | cut -d ":" -f2 | sed 's/"//g' | sed 's/,//g' | sed 's/ //g'`
 echo $vpcvalue
 echo $subnet01value
