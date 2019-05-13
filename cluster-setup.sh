@@ -79,6 +79,8 @@ sleep 30
 kubectl get nodes
 kubectl version
 echo "creating the dashboard"
+kubectl delete -f /home/ubuntu/kubernetes-dashboard.yaml
+kubectl delete -f /home/ubuntu/eks-admin-service-account.yaml
 kubectl create -f /home/ubuntu/kubernetes-dashboard.yaml
 kubectl create -f /home/ubuntu/eks-admin-service-account.yaml
 echo "pushing to github"
@@ -94,6 +96,7 @@ cd /home/ubuntu
 #cp worker_nodes /home/ubuntu/eks-app-platform-config/$Cluster_Name-$Region
 #cp cluster-info.json /home/ubuntu/eks-app-platform-config/$Cluster_Name-$Region
 cd eks-app-platform-config
+git init
 git add .
 git status
 git commit -m "files"
