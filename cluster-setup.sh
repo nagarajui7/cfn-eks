@@ -106,4 +106,4 @@ git add .
 git status
 git commit -m "files"
 #git push origin master
-git push https://nagaraju.batchu1%40gmail.com:N%40Ga%4012345@github.com/nagarajui7/eks-app-platform-config.git
+git push https://<uname>:<pwd>@github.com/nagarajui7/eks-app-platform-config.git
